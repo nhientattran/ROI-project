@@ -200,4 +200,6 @@ class Main():
     def run():
         user = Roi_calculator()
         user.income_cal()
+
+Main.run()
  
