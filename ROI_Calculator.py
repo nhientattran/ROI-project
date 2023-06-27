@@ -1,5 +1,5 @@
 import datetime
-from IPython.display import clear_output as clear
+# from IPython.display import clear_output as clear
 
 current_time = datetime.datetime.now()
 
@@ -10,8 +10,10 @@ class Roi_calculator():
         self.cash_flow = 0
         self.investment = 0
         self.cash_on_cash = 0
+        self.properties = []
 
     def income_cal(self):
+        property_data = {}
         while True:
             if current_time.hour < 12:
                 print("Good morning, welcome to our ROI calculator. With this application, we can help you to calculate your Return On Investment (ROI)! Let's do this!\n")
@@ -60,14 +62,15 @@ class Roi_calculator():
                         self.income += misc_income
                     break
             elif income_choice == 'no':
-                clear()
+                # clear()
                 print("Great! Let's continue to the next step to calculate your Expenses.\n")
                 break
             else:
                 print("Please enter 'Laundry Income' or 'Storage Income' or 'Misc Income', or 'No' to continue: ")
-        self.expenses_cal()
+        property_data['income'] = self.income
+        self.expenses_cal(property_data)
     
-    def expenses_cal(self):
+    def expenses_cal(self,property_data):
         expenses_list = ['taxes', 'insurance', 'water/sewer', 'garbage', 'electric', 'gas', 'hoa fees', 'lawn/snow', 'vacancy', 'maintainances', 'property management', 'mortgage']
         expenses_rental_list = ['taxes', 'insurance', 'hoa fees', 'vacancy', 'property management', 'mortgage']
         expenses_dic = {}
@@ -79,10 +82,10 @@ class Roi_calculator():
                     expenses_remove = input("Do you not have to pay any expenses in that list? Please enter it, enter 'No' if that list is correct: ")
                     if expenses_remove == 'no':
                         break
-                        clear()
+                        # clear()
                     else:
                         if expenses_remove in expenses_list:
-                            clear()
+                            # clear()
                             expenses_list.remove(expenses_remove)
                             print(f'Here is your updated expenses list: {expenses_list}')
                         else:
@@ -94,10 +97,11 @@ class Roi_calculator():
                             print(f"Thank you! Your information has been saved!")
                         else:
                             print('Please enter numbers. Try again!')
-                    clear()
+                    # clear()
                     print ("Thank you! Let's move to the next step!")
                     for value in expenses_dic.values():
                         self.expenses += int(value)
+                    property_data['expenses'] = self.expenses
                     break
                 break
             if expenses_choice == "rental":
@@ -106,10 +110,10 @@ class Roi_calculator():
                     expenses_rental_remove = input("Do you not have to pay any expenses in that list? Please enter it, enter 'No' if that list is correct: ")
                     if expenses_rental_remove == 'no':
                         break
-                        clear()
+                        # clear()
                     else:
                         if expenses_rental_remove in expenses_rental_list:
-                            clear()
+                            # clear()
                             expenses_rental_list.remove(expenses_rental_remove)
                             print(f'Here is your updated expenses list: {expenses_rental_list}')
                         else:
@@ -118,30 +122,32 @@ class Roi_calculator():
                     for i in range(len(expenses_rental_list)):
                         expenses_dic[expenses_rental_list[i]] = input(f"Please enter your {expenses_rental_list[i]}: ")
                         if expenses_dic[expenses_rental_list[i]].isdigit() == True:
-                            clear()
+                            # clear()
                             print(f"Thank you! Your {expenses_rental_list[i]} information has been saved!")
                         else:
                             print('Please enter numbers. Try again!')
-                    clear()
+                    # clear()
                     print ("Thank you! Let's move to the next step!")
                     for value in expenses_dic.values():
                         self.expenses += int(value)
+                    property_data['expenses'] = self.expenses
                     break
                 break
             else:
                 print("Please enter 'Airbnb' for AirBnB or 'Rental' for Rental House! Try again.")
                 continue
-        self.cash_cal()
+        self.cash_cal(property_data)
     
-    def cash_cal(self):
+    def cash_cal(self, property_data):
         cash = self.income - self.expenses
         self.cash_flow = cash * 12
         print (f"As we calculated, your Total Monthly Income is: ${self.income} and your Total Monthly Expenses is ${self.expenses}.\nAs a result, your Total Monthly Cashflow is: ${cash}.\nYour Annual Cash Flow is: ${self.cash_flow}.\n")
         # print (f"As a result, your Total Monthly Cashflow is: ${cash}\n")
         # print (f"Your Annual Cash Flow is: ${self.cash_flow}.\n")
-        self.cash_return()
+        property_data['cash_flow'] = self.cash_flow
+        self.cash_return(property_data)
     
-    def cash_return(self):
+    def cash_return(self, property_data):
         print("""
         For this last step, we would like to know your:
         - Down Payment Amount
@@ -192,9 +198,34 @@ class Roi_calculator():
             elif other.isdigit() == False:
                 print("Please enter numbers! Try again.")
         print (f"As we calculated, your Total Investment is ${self.investment}")
+        property_data['investment'] = self.investment
         self.cash_on_cash = (self.cash_flow / self.investment) * 100
-        print (f"Your Cash on Cash return is ${self.cash_on_cash}. Thank you for using our application!")
+        print (f"Your Cash on Cash return is ${self.cash_on_cash}.")
+        property_data['cash_return'] = self.cash_on_cash
+        self.properties.append(property_data)
+        
+        self.continue_()
 
+    def continue_(self):
+        while True:
+            again = input("Would you like to calculate the ROI for another property?('Yes' to continue, 'No' to exit): ").lower()
+            if again == 'yes':
+                self.income_cal()
+            elif again == 'no':
+                self.compare()
+                break
+            else:
+                print('You have entered wrong input. Please try again!')
+
+    def compare(self):
+        for i, property_data in enumerate(self.properties, start=1):
+            print(f"Property {i}: ")
+            print(f"- Income: {property_data['income']}")
+            print(f"- Expenses: {property_data['expenses']}")
+            print(f"- Cash Flow: {property_data['cash_flow']}")
+            print(f"- Investment: {property_data['investment']}")
+            print(f"- Cash Return: {property_data['cash_return']}")
+        return None
 
 class Main():
     def run():
@@ -202,4 +233,3 @@ class Main():
         user.income_cal()
 
 Main.run()
- 
